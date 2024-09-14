@@ -155,9 +155,6 @@
 
   <!-- Search bar -->
   <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Find and review workouts">
-  
-  <!-- Button to load data from Google Sheets -->
-  <button id="loadDataBtn" style="display:block;margin:20px auto;padding:10px 20px;">Load Google Sheets Data</button>
 
   <!-- Workout container -->
   <div class="workout-container" id="workoutContainer">
@@ -168,14 +165,13 @@
     // Reference to the workout container and search bar
     const workoutContainer = document.getElementById('workoutContainer');
     const searchBar = document.getElementById('searchBar');
-    const loadDataBtn = document.getElementById('loadDataBtn');
     let workoutData = [];  // To hold the parsed CSV data
 
     // Google Sheets CSV URL
     const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTl2VdbYSUhw2XHpmciqbOgvKt-MjqjdCEoVvy0coNODObnn18qxNMHOszL0EyOEqqV1OJYNAZm2wT/pub?output=csv';
 
-    // Load data when the button is clicked
-    loadDataBtn.addEventListener('click', function() {
+    // Automatically load the Google Sheets data on page load
+    window.addEventListener('DOMContentLoaded', function() {
       fetch(csvUrl)
         .then(response => response.text())
         .then(csvData => {

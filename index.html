@@ -155,7 +155,26 @@
     .calendar-icon {
       font-size: 24px;
       cursor: pointer;
-      /*color: #003c6d;*/
+    }
+
+    /* Reset button */
+    .reset-btn {
+      padding: 10px;
+      background-color: #C25A5A;
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .reset-btn:hover {
+      background-color: #d9534f;
+    }
+
+    /* Center search results info */
+    .search-info {
+      text-align: center;
+      margin-top: 20px;
     }
 
     /* Add margin to the right of the calendar icon on mobile */
@@ -224,8 +243,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
   <!-- Load Font Awesome for Calendar Icon -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+  <!-- Flatpickr -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-	<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body>
 
@@ -248,8 +268,10 @@
     <i class="fas fa-calendar-alt calendar-icon" id="calendarIcon"></i>
 
     <!-- Date picker field (hidden) -->
-    <!--<input type="date" class="date-picker" id="dateSearchBar">-->
     <input type="text" class="date-picker" id="dateSearchBar">
+
+    <!-- Reset button -->
+    <button class="reset-btn" id="resetBtn">Reset</button>
   </div>
 
   <!-- Container to display search information (date, search term, result count) -->
@@ -267,6 +289,7 @@
     const dateSearchBar = document.getElementById('dateSearchBar');
     const calendarIcon = document.getElementById('calendarIcon');
     const searchInfo = document.getElementById('searchInfo');
+    const resetBtn = document.getElementById('resetBtn');
     let workoutData = [];  // To hold the parsed CSV data
 
     // Google Sheets CSV URL
@@ -402,34 +425,31 @@
       populateWorkoutCards(filteredData);
     });
 
-    // Search functionality for date (when date icon is clicked)
-    /*calendarIcon.addEventListener('click', function() {
-      dateSearchBar.click();  // Open the date picker when the icon is clicked
-    });*/
     // Initialize Flatpickr
-    flatpickr("#dateSearchBar");
+    flatpickr("#dateSearchBar", {
+      onChange: function(selectedDates, dateStr) {
+        // Handle the date change event
+        const selectedDate = new Date(dateStr);
+        const formattedDate = formatDate(selectedDate.toISOString().slice(0, 10));
 
-    // Open Flatpickr when the button is clicked
-    document.getElementById('calendarIcon').addEventListener('click', function() {
-        document.getElementById('dateSearchBar')._flatpickr.open();
+        // Filter the workout data based on the selected date
+        const filteredData = workoutData.filter(row => row['Workout Date'] === formattedDate);
+
+        // Repopulate the workout cards with the filtered data
+        populateWorkoutCards(filteredData);
+      }
     });
 
-    // Filter workouts based on selected date
-    dateSearchBar.addEventListener('input', function() {
-      const selectedDate = new Date(dateSearchBar.value);
-      if (!dateSearchBar.value) {
-        // If the date picker is cleared, reload all workouts
-        populateWorkoutCards(workoutData);
-        return;
-      }
+    // Open Flatpickr when the calendar icon is clicked
+    calendarIcon.addEventListener('click', function() {
+      dateSearchBar._flatpickr.open();
+    });
 
-      const formattedDate = formatDate(selectedDate.toISOString().slice(0, 10));
-
-      // Filter the workout data based on the selected date
-      const filteredData = workoutData.filter(row => row['Workout Date'] === formattedDate);
-
-      // Repopulate the workout cards with the filtered data
-      populateWorkoutCards(filteredData);
+    // Reset the search and date picker
+    resetBtn.addEventListener('click', function() {
+      searchBar.value = '';
+      dateSearchBar._flatpickr.clear();
+      populateWorkoutCards(workoutData);  // Reload all workouts
     });
   </script>
 

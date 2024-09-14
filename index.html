@@ -294,6 +294,14 @@
     function populateWorkoutCards(data) {
       workoutContainer.innerHTML = '';  // Clear existing cards
 
+      if (data.length === 0) {
+        const noResultsMessage = document.createElement('p');
+        noResultsMessage.textContent = 'No workouts found for the selected date.';
+        noResultsMessage.style.textAlign = 'center';
+        workoutContainer.appendChild(noResultsMessage);
+        return;
+      }
+
       data.forEach(row => {
         const card = document.createElement('div');
         card.classList.add('workout-card');

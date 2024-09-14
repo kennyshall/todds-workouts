@@ -156,6 +156,16 @@
       color: #003c6d;
     }
 
+    .date-picker::before {
+      content: '📅';
+      position: absolute;
+      right: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      pointer-events: none;
+    }
+
     /* Responsive Styles */
     @media (max-width: 768px) {
       .main-title-container {

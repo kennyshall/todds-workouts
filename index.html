@@ -126,9 +126,10 @@
     }
 
     /* Search bar styling */
-    .search-bar {
+    .search-bar,
+    .date-search-bar {
       display: block;
-      margin: 20px auto;
+      margin: 10px auto;
       max-width: 800px;
       padding: 10px;
       font-size: 16px;
@@ -191,7 +192,7 @@
         font-size: 14px;
       }
 
-      .search-bar {
+      .search-bar, .date-search-bar {
         width: 90%;
       }
     }
@@ -211,8 +212,9 @@
 
   <h1>Find and review workouts</h1>
 
-  <!-- Search bar -->
-  <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Find and review workouts">
+  <!-- Search bars -->
+  <input type="date" class="date-search-bar" id="dateSearchBar" placeholder="📅 Search by date">
+  <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Search workouts by keyword">
 
   <!-- Workout container -->
   <div class="workout-container" id="workoutContainer">
@@ -223,6 +225,7 @@
     // Reference to the workout container and search bar
     const workoutContainer = document.getElementById('workoutContainer');
     const searchBar = document.getElementById('searchBar');
+    const dateSearchBar = document.getElementById('dateSearchBar');
     let workoutData = [];  // To hold the parsed CSV data
 
     // Google Sheets CSV URL
@@ -308,24 +311,35 @@
       });
     }
 
-    // Search functionality
-    searchBar.addEventListener('input', function() {
+    // Function to filter by both date and text
+    function filterWorkouts() {
       const query = searchBar.value.toLowerCase();
+      const dateQuery = dateSearchBar.value;  // Get the selected date
 
-      // Filter the workout data based on the search query
       const filteredData = workoutData.filter(row => {
-        return (
+        const workoutDate = new Date(row['Workout Date']);  // Parse the workout date
+        const formattedDate = workoutDate.toISOString().slice(0, 10); // Format as YYYY-MM-DD
+
+        const textMatch = (
           row['Workout Date'].toLowerCase().includes(query) ||
           row['Tag'].toLowerCase().includes(query) ||
           row['Workout Header'].toLowerCase().includes(query) ||
           row['Workout Full Details'].toLowerCase().includes(query) ||
           (row['Comments'] && row['Comments'].toLowerCase().includes(query))
         );
+
+        const dateMatch = !dateQuery || formattedDate === dateQuery;  // Match if no date is selected or the date matches
+        return textMatch && dateMatch;
       });
 
       // Repopulate the workout cards with the filtered data
       populateWorkoutCards(filteredData);
-    });
+    }
+
+    // Search functionality
+    searchBar.addEventListener('input', filterWorkouts);
+    dateSearchBar.addEventListener('input', filterWorkouts);
+
   </script>
 
 </body>

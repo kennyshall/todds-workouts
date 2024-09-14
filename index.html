@@ -146,24 +146,22 @@
       color: #003c6d;
     }
 
-    /* Date picker styling */
+    /* Hidden date picker */
     .date-picker {
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 5px;
-      border: 1px solid #5995C4;
-      background-color: #d3d3d3;
+      display: none;
+    }
+
+    /* Style for the calendar icon */
+    .calendar-icon {
+      font-size: 24px;
+      cursor: pointer;
       color: #003c6d;
     }
 
-    .date-picker::before {
-      content: '📅';
-      position: relative;
-      /*right: 30px;*/
-      /*top: 50%;*/
-      /*transform: translateY(-50%);*/
-      font-size: 36px;
-      /*pointer-events: none;*/
+    /* Container for displaying search info */
+    .search-info {
+      text-align: center;
+      margin-top: 10px;
     }
 
     /* Responsive Styles */
@@ -222,11 +220,6 @@
         width: 100%;
         margin-left: 10px;
       }
-
-      .date-picker {
-        width: 100%;
-        margin-right: 10px;
-      }
     }
   </style>
   <!-- Load PapaParse library -->
@@ -251,9 +244,15 @@
     <!-- Text search bar -->
     <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Find and review workouts">
 
-    <!-- Date picker field -->
+    <!-- Calendar icon for date picker -->
+    <i class="fas fa-calendar-alt calendar-icon" id="calendarIcon"></i>
+
+    <!-- Date picker field (hidden) -->
     <input type="date" class="date-picker" id="dateSearchBar">
   </div>
+
+  <!-- Container to display search information (date, search term, result count) -->
+  <div class="search-info" id="searchInfo"></div>
 
   <!-- Workout container -->
   <div class="workout-container" id="workoutContainer">
@@ -261,10 +260,12 @@
   </div>
 
   <script>
-    // Reference to the workout container and search bars
+    // Reference to the workout container, search bars, and search info display
     const workoutContainer = document.getElementById('workoutContainer');
     const searchBar = document.getElementById('searchBar');
     const dateSearchBar = document.getElementById('dateSearchBar');
+    const calendarIcon = document.getElementById('calendarIcon');
+    const searchInfo = document.getElementById('searchInfo');
     let workoutData = [];  // To hold the parsed CSV data
 
     // Google Sheets CSV URL
@@ -374,6 +375,11 @@
         card.appendChild(workoutInfo);
         workoutContainer.appendChild(card);  // Append the card to the workout container
       });
+
+      // Display the search info (date, search term, result count)
+      const searchTerm = searchBar.value || 'N/A';
+      const selectedDate = dateSearchBar.value ? formatDate(dateSearchBar.value) : 'N/A';
+      searchInfo.innerHTML = `<strong>Search Term:</strong> ${searchTerm} | <strong>Date:</strong> ${selectedDate} | <strong>Results:</strong> ${data.length}`;
     }
 
     // Search functionality for text
@@ -395,7 +401,12 @@
       populateWorkoutCards(filteredData);
     });
 
-    // Search functionality for date
+    // Search functionality for date (when date icon is clicked)
+    calendarIcon.addEventListener('click', function() {
+      dateSearchBar.click();  // Trigger the date picker when the icon is clicked
+    });
+
+    // Filter workouts based on selected date
     dateSearchBar.addEventListener('input', function() {
       const selectedDate = new Date(dateSearchBar.value);
       if (!dateSearchBar.value) {

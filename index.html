@@ -379,6 +379,12 @@
     // Search functionality for date
     dateSearchBar.addEventListener('input', function() {
       const selectedDate = new Date(dateSearchBar.value);
+      if (!dateSearchBar.value) {
+        // If the date picker is cleared, reload all workouts
+        populateWorkoutCards(workoutData);
+        return;
+      }
+
       const formattedDate = formatDate(selectedDate.toISOString().slice(0, 10));
 
       // Filter the workout data based on the selected date

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workout Data Display</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #003c6d;
+      color: #d3d3d3;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Main title container to hold the image and text side by side */
+    .main-title-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 0 20px;
+    }
+
+    /* Main title styling */
+    .main-title {
+      font-size: 36px;
+      font-weight: bold;
+      margin-left: 15px;
+      color: #d3d3d3;
+    }
+
+    /* Style for the circular image */
+    .thumbnail {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    h1 {
+      text-align: center;
+      padding: 20px;
+      color: #d3d3d3;
+    }
+
+    .workout-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .workout-card {
+      background-color: #d3d3d3;
+      border: 1px solid #5995C4;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      box-shadow: 0 2px 10px rgba(0, 60, 109, 0.2);
+    }
+
+    .workout-card .date {
+      background-color: rgb(142,170,133);
+      border-radius: 8px;
+      text-align: center;
+      padding: 10px;
+      margin-right: 20px;
+    }
+
+    .workout-card .date span {
+      display: block;
+      font-size: 16px;
+      color: #d3d3d3;
+    }
+
+    .workout-card .date .day {
+      font-size: 28px;
+      color: #d3d3d3;
+    }
+
+    .workout-card .date .year {
+      font-size: 16px;
+      color: #d3d3d3;
+    }
+
+    .workout-info {
+      flex-grow: 1;
+    }
+
+    .workout-info h2 {
+      margin: 0;
+      font-size: 20px;
+      color: #003c6d;
+    }
+
+    .workout-info .status {
+      margin: 10px 0;
+    }
+
+    .status.completed {
+      color: #d3d3d3;
+      background-color: rgb(142,170,133);
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+
+    .status.missed {
+      color: #d3d3d3;
+      background-color: #C25A5A;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+
+    .workout-info .details,
+    .workout-info .comments {
+      margin: 10px 0;
+      color: #003c6d;
+      white-space: pre-wrap;
+    }
+
+    .workout-info .comments .comment {
+      margin-bottom: 5px;
+    }
+
+    /* Search bar styling */
+    .search-bar {
+      display: block;
+      margin: 20px auto;
+      max-width: 800px;
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      border-radius: 5px;
+      border: 1px solid #5995C4;
+      background-color: #d3d3d3;
+      color: #003c6d;
+    }
+  </style>
+  <!-- Load PapaParse library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+</head>
+<body>
+
+  <!-- Main Title Container with Image and Text -->
+  <div class="main-title-container">
+    <!-- Thumbnail Image -->
+    <img src="todds-image.png" alt="Todd Roselle" class="thumbnail">
+    <!-- Main Title -->
+    <div class="main-title">Todd Roselle</div>
+  </div>
+
+  <h1>Find and review workouts</h1>
+
+  <!-- Search bar -->
+  <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Find and review workouts">
+  
+  <!-- Button to load data from Google Sheets -->
+  <button id="loadDataBtn" style="display:block;margin:20px auto;padding:10px 20px;">Load Google Sheets Data</button>
+
+  <!-- Workout container -->
+  <div class="workout-container" id="workoutContainer">
+    <!-- Dynamic workout cards will be inserted here -->
+  </div>
+
+  <script>
+    // Reference to the workout container and search bar
+    const workoutContainer = document.getElementById('workoutContainer');
+    const searchBar = document.getElementById('searchBar');
+    const loadDataBtn = document.getElementById('loadDataBtn');
+    let workoutData = [];  // To hold the parsed CSV data
+
+    // Google Sheets CSV URL
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTl2VdbYSUhw2XHpmciqbOgvKt-MjqjdCEoVvy0coNODObnn18qxNMHOszL0EyOEqqV1OJYNAZm2wT/pub?output=csv';
+
+    // Load data when the button is clicked
+    loadDataBtn.addEventListener('click', function() {
+      fetch(csvUrl)
+        .then(response => response.text())
+        .then(csvData => {
+          // Parse the CSV data using PapaParse
+          Papa.parse(csvData, {
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+              workoutData = results.data;  // Store the data
+              populateWorkoutCards(workoutData);  // Populate the workout cards
+            },
+            error: function(error) {
+              console.error('Error parsing CSV:', error);
+            }
+          });
+        })
+        .catch(error => console.error('Error fetching the CSV:', error));
+    });
+
+    // Function to populate workout cards dynamically
+    function populateWorkoutCards(data) {
+      workoutContainer.innerHTML = '';  // Clear existing cards
+
+      data.forEach(row => {
+        const card = document.createElement('div');
+        card.classList.add('workout-card');
+
+        // Extract the date parts: Day, Month, Year
+        const dateParts = row['Workout Date'].split(',');
+        const monthDay = dateParts[1].trim().split(' ');
+        const year = dateParts[2].trim(); // Extract the year
+
+        // Create date element
+        const dateElement = document.createElement('div');
+        dateElement.classList.add('date');
+        dateElement.innerHTML = `
+          <span>${monthDay[0].toUpperCase()}</span>
+          <span class="day">${monthDay[1]}</span>
+          <span class="year">${year}</span>
+        `;
+        card.appendChild(dateElement);
+
+        // Create workout info element
+        const workoutInfo = document.createElement('div');
+        workoutInfo.classList.add('workout-info');
+        
+        const header = document.createElement('h2');
+        header.textContent = row['Workout Header'];
+        workoutInfo.appendChild(header);
+
+        // Create status element
+        const status = document.createElement('div');
+        status.classList.add('status', row['Tag'].toLowerCase());
+        status.textContent = row['Tag'] === 'Completed' ? 'Completed' : 'Missed';
+        workoutInfo.appendChild(status);
+
+        // Create details element with preserved formatting
+        const details = document.createElement('div');
+        details.classList.add('details');
+        details.textContent = row['Workout Full Details'];
+        workoutInfo.appendChild(details);
+
+        // Create comments element if available, with preserved formatting
+        if (row['Comments']) {
+          const comments = document.createElement('div');
+          comments.classList.add('comments');
+          comments.innerHTML = row['Comments']
+            .split('\n')
+            .map(comment => `<div class="comment">${comment}</div>`)
+            .join('');
+          workoutInfo.appendChild(comments);
+        }
+
+        card.appendChild(workoutInfo);
+        workoutContainer.appendChild(card);  // Append the card to the workout container
+      });
+    }
+
+    // Search functionality
+    searchBar.addEventListener('input', function() {
+      const query = searchBar.value.toLowerCase();
+
+      // Filter the workout data based on the search query
+      const filteredData = workoutData.filter(row => {
+        return (
+          row['Workout Date'].toLowerCase().includes(query) ||
+          row['Tag'].toLowerCase().includes(query) ||
+          row['Workout Header'].toLowerCase().includes(query) ||
+          row['Workout Full Details'].toLowerCase().includes(query) ||
+          (row['Comments'] && row['Comments'].toLowerCase().includes(query))
+        );
+      });
+
+      // Repopulate the workout cards with the filtered data
+      populateWorkoutCards(filteredData);
+    });
+  </script>
+
+</body>
+</html>

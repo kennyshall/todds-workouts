@@ -314,21 +314,26 @@
     // Function to filter by both date and text
     function filterWorkouts() {
       const query = searchBar.value.toLowerCase();
-      const dateQuery = dateSearchBar.value;  // Get the selected date
+      const dateQuery = new Date(dateSearchBar.value);  // Get the selected date
+      const formattedDateQuery = dateQuery.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
 
       const filteredData = workoutData.filter(row => {
-        const workoutDate = new Date(row['Workout Date']);  // Parse the workout date
-        const formattedDate = workoutDate.toISOString().slice(0, 10); // Format as YYYY-MM-DD
+        const workoutDate = row['Workout Date'].toLowerCase();
 
         const textMatch = (
-          row['Workout Date'].toLowerCase().includes(query) ||
+          workoutDate.includes(query) ||
           row['Tag'].toLowerCase().includes(query) ||
           row['Workout Header'].toLowerCase().includes(query) ||
           row['Workout Full Details'].toLowerCase().includes(query) ||
           (row['Comments'] && row['Comments'].toLowerCase().includes(query))
         );
 
-        const dateMatch = !dateQuery || formattedDate === dateQuery;  // Match if no date is selected or the date matches
+        const dateMatch = !dateSearchBar.value || workoutDate.includes(formattedDateQuery.toLowerCase());
         return textMatch && dateMatch;
       });
 

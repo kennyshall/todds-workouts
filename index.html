@@ -126,10 +126,9 @@
     }
 
     /* Search bar styling */
-    .search-bar,
-    .date-search-bar {
+    .search-bar, .date-search-bar {
       display: block;
-      margin: 10px auto;
+      margin: 20px auto;
       max-width: 800px;
       padding: 10px;
       font-size: 16px;
@@ -138,6 +137,19 @@
       border: 1px solid #5995C4;
       background-color: #d3d3d3;
       color: #003c6d;
+      -webkit-appearance: none; /* Removes the appearance on iOS */
+    }
+
+    /* Placeholder color for search inputs */
+    ::placeholder {
+      color: #003c6d;
+      opacity: 1; /* iOS Safari */
+    }
+
+    input[type="date"] {
+      color: #003c6d;
+      background-color: #d3d3d3;
+      padding: 10px;
     }
 
     /* Responsive Styles */
@@ -213,8 +225,8 @@
   <h1>Find and review workouts</h1>
 
   <!-- Search bars -->
-  <input type="date" class="date-search-bar" id="dateSearchBar" placeholder="📅 Search by date">
-  <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Search workouts by keyword">
+  <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Find and review workouts">
+  <input type="date" class="date-search-bar" id="dateSearchBar" placeholder="Select a date">
 
   <!-- Workout container -->
   <div class="workout-container" id="workoutContainer">
@@ -222,7 +234,7 @@
   </div>
 
   <script>
-    // Reference to the workout container and search bar
+    // Reference to the workout container and search bars
     const workoutContainer = document.getElementById('workoutContainer');
     const searchBar = document.getElementById('searchBar');
     const dateSearchBar = document.getElementById('dateSearchBar');
@@ -252,9 +264,9 @@
         .catch(error => console.error('Error fetching the CSV:', error));
     });
 
-    // Function to add ordinal suffixes to day numbers
+    // Helper function to get ordinal suffix
     function getOrdinalSuffix(day) {
-      if (day > 3 && day < 21) return 'th'; // General rule
+      if (day > 3 && day < 21) return 'th';
       switch (day % 10) {
         case 1: return 'st';
         case 2: return 'nd';
@@ -263,17 +275,17 @@
       }
     }
 
-    // Function to format the date to match the format in the data
+    // Function to format date to match your CSV format
     function formatDate(dateString) {
-      const date = new Date(dateString + 'T00:00:00'); // Adding 'T00:00:00' to ensure time is set to midnight local time
+      const date = new Date(dateString + 'T00:00:00');
       const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
       const monthsOfYear = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    
+
       const dayOfWeek = daysOfWeek[date.getDay()];
       const month = monthsOfYear[date.getMonth()];
       const day = date.getDate();
       const year = date.getFullYear();
-    
+
       const suffix = getOrdinalSuffix(day);
       return `${dayOfWeek}, ${month} ${day}${suffix}, ${year}`;
     }
@@ -337,34 +349,37 @@
       });
     }
 
-    // Function to filter by both date and text
-    function filterWorkouts() {
+    // Search functionality for text
+    searchBar.addEventListener('input', function() {
       const query = searchBar.value.toLowerCase();
-      const dateQuery = dateSearchBar.value ? formatDate(new Date(dateSearchBar.value)) : ''; // Format date
 
+      // Filter the workout data based on the search query
       const filteredData = workoutData.filter(row => {
-        const workoutDate = row['Workout Date'].toLowerCase();
-
-        const textMatch = (
-          workoutDate.includes(query) ||
+        return (
+          row['Workout Date'].toLowerCase().includes(query) ||
           row['Tag'].toLowerCase().includes(query) ||
           row['Workout Header'].toLowerCase().includes(query) ||
           row['Workout Full Details'].toLowerCase().includes(query) ||
           (row['Comments'] && row['Comments'].toLowerCase().includes(query))
         );
-
-        const dateMatch = !dateSearchBar.value || workoutDate.includes(dateQuery.toLowerCase());
-        return textMatch && dateMatch;
       });
 
       // Repopulate the workout cards with the filtered data
       populateWorkoutCards(filteredData);
-    }
+    });
 
-    // Search functionality
-    searchBar.addEventListener('input', filterWorkouts);
-    dateSearchBar.addEventListener('input', filterWorkouts);
+    // Search functionality for date picker
+    dateSearchBar.addEventListener('input', function() {
+      const selectedDate = formatDate(dateSearchBar.value);
 
+      // Filter the workout data based on the selected date
+      const filteredData = workoutData.filter(row => {
+        return row['Workout Date'] === selectedDate;
+      });
+
+      // Repopulate the workout cards with the filtered data
+      populateWorkoutCards(filteredData);
+    });
   </script>
 
 </body>

@@ -125,37 +125,57 @@
       margin-bottom: 5px;
     }
 
-    /* Flex container to align search and datepicker on the same line */
-    .search-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      margin: 20px auto;
-      max-width: 800px;
-    }
-
     /* Search bar styling */
     .search-bar {
+      display: block;
+      margin: 20px auto;
+      max-width: 800px;
       padding: 10px;
       font-size: 16px;
-      flex-grow: 1;
+      width: 100%;
       border-radius: 5px;
       border: 1px solid #5995C4;
       background-color: #d3d3d3;
       color: #003c6d;
     }
 
-    /* Date picker hidden but triggered by the icon */
+    /* Style for date picker with placeholder and custom icon */
     .date-picker {
-      display: none;
+      display: block;
+      margin: 20px auto;
+      max-width: 800px;
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      border-radius: 5px;
+      border: 1px solid #5995C4;
+      background-color: #d3d3d3;
+      color: #003c6d;
+      position: relative;
+      -webkit-appearance: none; /* Remove default styling on iOS */
     }
 
-    /* Calendar icon to trigger the date picker */
-    .date-icon {
-      font-size: 1.8em;
+    .date-picker::-webkit-calendar-picker-indicator {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
       cursor: pointer;
-      color: #d3d3d3;
+    }
+
+    .date-picker::before {
+      content: '📅';
+      position: absolute;
+      right: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      pointer-events: none;
+    }
+
+    /* Placeholder styling */
+    .date-picker::placeholder {
+      color: #888;
     }
 
     /* Responsive Styles */
@@ -211,14 +231,16 @@
       }
 
       .search-bar {
-        width: 100%;
+        width: 90%;
+      }
+
+      .date-picker {
+        width: 90%;
       }
     }
   </style>
   <!-- Load PapaParse library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-  <!-- Font Awesome for Calendar Icon -->
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -232,17 +254,11 @@
 
   <h1>Find and review workouts</h1>
 
-  <!-- Flex container for search bar and datepicker icon -->
-  <div class="search-container">
-    <!-- Text search bar -->
-    <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Find and review workouts">
+  <!-- Text search bar -->
+  <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Find and review workouts">
 
-    <!-- Date picker icon -->
-    <i class="fas fa-calendar-alt date-icon" id="datePickerIcon"></i>
-
-    <!-- Hidden date picker input field -->
-    <input type="date" class="date-picker" id="dateSearchBar">
-  </div>
+  <!-- Date picker search -->
+  <input type="date" class="date-picker" id="dateSearchBar" placeholder="Select Date" >
 
   <!-- Workout container -->
   <div class="workout-container" id="workoutContainer">
@@ -253,7 +269,6 @@
     // Reference to the workout container and search bars
     const workoutContainer = document.getElementById('workoutContainer');
     const searchBar = document.getElementById('searchBar');
-    const datePickerIcon = document.getElementById('datePickerIcon');
     const dateSearchBar = document.getElementById('dateSearchBar');
     let workoutData = [];  // To hold the parsed CSV data
 
@@ -383,11 +398,6 @@
 
       // Repopulate the workout cards with the filtered data
       populateWorkoutCards(filteredData);
-    });
-
-    // Trigger the date picker when the calendar icon is clicked
-    datePickerIcon.addEventListener('click', function() {
-      dateSearchBar.click();
     });
 
     // Search functionality for date

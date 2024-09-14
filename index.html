@@ -224,6 +224,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
   <!-- Load Font Awesome for Calendar Icon -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body>
 
@@ -246,7 +248,8 @@
     <i class="fas fa-calendar-alt calendar-icon" id="calendarIcon"></i>
 
     <!-- Date picker field (hidden) -->
-    <input type="date" class="date-picker" id="dateSearchBar">
+    <!--<input type="date" class="date-picker" id="dateSearchBar">-->
+    <input type="text" class="date-picker" id="dateSearchBar">
   </div>
 
   <!-- Container to display search information (date, search term, result count) -->
@@ -403,10 +406,12 @@
     /*calendarIcon.addEventListener('click', function() {
       dateSearchBar.click();  // Open the date picker when the icon is clicked
     });*/
+    // Initialize Flatpickr
+    flatpickr("#dateSearchBar");
 
+    // Open Flatpickr when the button is clicked
     document.getElementById('calendarIcon').addEventListener('click', function() {
-        document.getElementById('dateSearchBar').focus();
-      document.getElementById('dateSearchBar').click();
+        document.getElementById('dateSearchBar')._flatpickr.open();
     });
 
     // Filter workouts based on selected date

@@ -139,7 +139,7 @@
       color: #003c6d;
     }
 
-    /* Style for date picker with placeholder for mobile */
+    /* Style for date picker with placeholder and custom icon */
     .date-picker {
       display: block;
       margin: 20px auto;
@@ -151,7 +151,31 @@
       border: 1px solid #5995C4;
       background-color: #d3d3d3;
       color: #003c6d;
+      position: relative;
       -webkit-appearance: none; /* Remove default styling on iOS */
+    }
+
+    .date-picker::-webkit-calendar-picker-indicator {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+    }
+
+    .date-picker::before {
+      content: '📅';
+      position: absolute;
+      right: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      pointer-events: none;
+    }
+
+    /* Placeholder styling */
+    .date-picker::placeholder {
+      color: #888;
     }
 
     /* Responsive Styles */
@@ -230,11 +254,13 @@
 
   <h1>Find and review workouts</h1>
 
+  <!-- Date picker search -->
+  <input type="date" class="date-picker" id="dateSearchBar" placeholder="Select Date" >
+  
   <!-- Text search bar -->
   <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Find and review workouts">
 
-  <!-- Date picker search -->
-  <input type="date" class="date-picker" id="dateSearchBar" placeholder="Select Date" >
+
 
   <!-- Workout container -->
   <div class="workout-container" id="workoutContainer">

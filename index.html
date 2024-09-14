@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Workout Data Display</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,7 +14,6 @@
       padding: 0;
     }
 
-    /* Main title container to hold the image and text side by side */
     .main-title-container {
       display: flex;
       align-items: center;
@@ -22,7 +22,6 @@
       flex-wrap: wrap;
     }
 
-    /* Main title styling */
     .main-title {
       font-size: 36px;
       font-weight: bold;
@@ -30,7 +29,6 @@
       color: #d3d3d3;
     }
 
-    /* Style for the circular image */
     .thumbnail {
       width: 80px;
       height: 80px;
@@ -139,19 +137,16 @@
       color: #003c6d;
     }
 
-    /* Style for date picker with placeholder for mobile */
-    .date-picker {
-      display: block;
-      margin: 20px auto;
-      max-width: 800px;
-      padding: 10px;
-      font-size: 16px;
+    /* Flatpickr customization */
+    .flatpickr-input {
       width: 100%;
       border-radius: 5px;
       border: 1px solid #5995C4;
       background-color: #d3d3d3;
       color: #003c6d;
-      -webkit-appearance: none; /* Remove default styling on iOS */
+      padding: 10px;
+      font-size: 16px;
+      text-align: center;
     }
 
     /* Responsive Styles */
@@ -210,13 +205,11 @@
         width: 90%;
       }
 
-      .date-picker {
+      .flatpickr-input {
         width: 90%;
       }
     }
   </style>
-  <!-- Load PapaParse library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 </head>
 <body>
 
@@ -230,18 +223,27 @@
 
   <h1>Find and review workouts</h1>
 
-  <!-- Text search bar -->
+  <!-- Search bar -->
   <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Find and review workouts">
 
   <!-- Date picker search -->
-  <input type="date" class="date-picker" id="dateSearchBar" placeholder="Select Date" >
+  <input type="text" class="date-picker" id="dateSearchBar" placeholder="Select Date">
 
   <!-- Workout container -->
   <div class="workout-container" id="workoutContainer">
     <!-- Dynamic workout cards will be inserted here -->
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
+    // Initialize Flatpickr
+    flatpickr("#dateSearchBar", {
+      dateFormat: "Y-m-d", // Adjust based on your data format
+      altInput: true,
+      altFormat: "F j, Y", // Format that users see
+      allowInput: true
+    });
+
     // Reference to the workout container and search bars
     const workoutContainer = document.getElementById('workoutContainer');
     const searchBar = document.getElementById('searchBar');
@@ -271,24 +273,6 @@
         })
         .catch(error => console.error('Error fetching the CSV:', error));
     });
-
-    // Function to format date as "Day, Month DateSuffix, Year"
-    function formatDate(dateString) {
-      const date = new Date(dateString);
-      const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      const monthsOfYear = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-      const dayOfWeek = daysOfWeek[date.getUTCDay()];
-      const month = monthsOfYear[date.getUTCMonth()];
-      const day = date.getUTCDate();
-      const year = date.getUTCFullYear();
-
-      let suffix = 'th';
-      if (day === 1 || day === 21 || day === 31) suffix = 'st';
-      else if (day === 2 || day === 22) suffix = 'nd';
-      else if (day === 3 || day === 23) suffix = 'rd';
-
-      return `${dayOfWeek}, ${month} ${day}${suffix}, ${year}`;
-    }
 
     // Function to populate workout cards dynamically
     function populateWorkoutCards(data) {
@@ -377,15 +361,19 @@
     });
 
     // Search functionality for date
-    dateSearchBar.addEventListener('input', function() {
+    dateSearchBar.addEventListener('change', function() {
       const selectedDate = new Date(dateSearchBar.value);
       if (!dateSearchBar.value) {
-        // If the date picker is cleared, reload all workouts
-        populateWorkoutCards(workoutData);
+        populateWorkoutCards(workoutData);  // Reload all workouts if date picker is cleared
         return;
       }
 
-      const formattedDate = formatDate(selectedDate.toISOString().slice(0, 10));
+      const formattedDate = selectedDate.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
 
       // Filter the workout data based on the selected date
       const filteredData = workoutData.filter(row => row['Workout Date'] === formattedDate);

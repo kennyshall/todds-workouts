@@ -126,7 +126,7 @@
     }
 
     /* Search bar styling */
-    .search-bar, .date-search-bar {
+    .search-bar {
       display: block;
       margin: 20px auto;
       max-width: 800px;
@@ -137,19 +137,21 @@
       border: 1px solid #5995C4;
       background-color: #d3d3d3;
       color: #003c6d;
-      -webkit-appearance: none; /* Removes the appearance on iOS */
     }
 
-    /* Placeholder color for search inputs */
-    ::placeholder {
-      color: #003c6d;
-      opacity: 1; /* iOS Safari */
-    }
-
-    input[type="date"] {
-      color: #003c6d;
-      background-color: #d3d3d3;
+    /* Style for date picker with placeholder for mobile */
+    .date-picker {
+      display: block;
+      margin: 20px auto;
+      max-width: 800px;
       padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      border-radius: 5px;
+      border: 1px solid #5995C4;
+      background-color: #d3d3d3;
+      color: #003c6d;
+      -webkit-appearance: none; /* Remove default styling on iOS */
     }
 
     /* Responsive Styles */
@@ -204,7 +206,11 @@
         font-size: 14px;
       }
 
-      .search-bar, .date-search-bar {
+      .search-bar {
+        width: 90%;
+      }
+
+      .date-picker {
         width: 90%;
       }
     }
@@ -224,9 +230,11 @@
 
   <h1>Find and review workouts</h1>
 
-  <!-- Search bars -->
+  <!-- Text search bar -->
   <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Find and review workouts">
-  <input type="date" class="date-search-bar" id="dateSearchBar" placeholder="Select a date">
+
+  <!-- Date picker search -->
+  <input type="date" class="date-picker" id="dateSearchBar" placeholder="Select Date" >
 
   <!-- Workout container -->
   <div class="workout-container" id="workoutContainer">
@@ -264,29 +272,21 @@
         .catch(error => console.error('Error fetching the CSV:', error));
     });
 
-    // Helper function to get ordinal suffix
-    function getOrdinalSuffix(day) {
-      if (day > 3 && day < 21) return 'th';
-      switch (day % 10) {
-        case 1: return 'st';
-        case 2: return 'nd';
-        case 3: return 'rd';
-        default: return 'th';
-      }
-    }
-
-    // Function to format date to match your CSV format
+    // Function to format date as "Day, Month DateSuffix, Year"
     function formatDate(dateString) {
-      const date = new Date(dateString + 'T00:00:00');
+      const date = new Date(dateString);
       const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
       const monthsOfYear = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const dayOfWeek = daysOfWeek[date.getUTCDay()];
+      const month = monthsOfYear[date.getUTCMonth()];
+      const day = date.getUTCDate();
+      const year = date.getUTCFullYear();
 
-      const dayOfWeek = daysOfWeek[date.getDay()];
-      const month = monthsOfYear[date.getMonth()];
-      const day = date.getDate();
-      const year = date.getFullYear();
+      let suffix = 'th';
+      if (day === 1 || day === 21 || day === 31) suffix = 'st';
+      else if (day === 2 || day === 22) suffix = 'nd';
+      else if (day === 3 || day === 23) suffix = 'rd';
 
-      const suffix = getOrdinalSuffix(day);
       return `${dayOfWeek}, ${month} ${day}${suffix}, ${year}`;
     }
 
@@ -368,14 +368,13 @@
       populateWorkoutCards(filteredData);
     });
 
-    // Search functionality for date picker
+    // Search functionality for date
     dateSearchBar.addEventListener('input', function() {
-      const selectedDate = formatDate(dateSearchBar.value);
+      const selectedDate = new Date(dateSearchBar.value);
+      const formattedDate = formatDate(selectedDate.toISOString().slice(0, 10));
 
       // Filter the workout data based on the selected date
-      const filteredData = workoutData.filter(row => {
-        return row['Workout Date'] === selectedDate;
-      });
+      const filteredData = workoutData.filter(row => row['Workout Date'] === formattedDate);
 
       // Repopulate the workout cards with the filtered data
       populateWorkoutCards(filteredData);

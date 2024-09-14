@@ -252,6 +252,31 @@
         .catch(error => console.error('Error fetching the CSV:', error));
     });
 
+    // Function to add ordinal suffixes to day numbers
+    function getOrdinalSuffix(day) {
+      if (day > 3 && day < 21) return 'th'; // General rule
+      switch (day % 10) {
+        case 1: return 'st';
+        case 2: return 'nd';
+        case 3: return 'rd';
+        default: return 'th';
+      }
+    }
+
+    // Function to format the date to match the format in the data
+    function formatDate(date) {
+      const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const monthsOfYear = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+      const dayOfWeek = daysOfWeek[date.getDay()];
+      const month = monthsOfYear[date.getMonth()];
+      const day = date.getDate();
+      const year = date.getFullYear();
+
+      const suffix = getOrdinalSuffix(day);
+      return `${dayOfWeek}, ${month} ${day}${suffix}, ${year}`;
+    }
+
     // Function to populate workout cards dynamically
     function populateWorkoutCards(data) {
       workoutContainer.innerHTML = '';  // Clear existing cards
@@ -314,13 +339,7 @@
     // Function to filter by both date and text
     function filterWorkouts() {
       const query = searchBar.value.toLowerCase();
-      const dateQuery = new Date(dateSearchBar.value);  // Get the selected date
-      const formattedDateQuery = dateQuery.toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
+      const dateQuery = dateSearchBar.value ? formatDate(new Date(dateSearchBar.value)) : ''; // Format date
 
       const filteredData = workoutData.filter(row => {
         const workoutDate = row['Workout Date'].toLowerCase();
@@ -333,7 +352,7 @@
           (row['Comments'] && row['Comments'].toLowerCase().includes(query))
         );
 
-        const dateMatch = !dateSearchBar.value || workoutDate.includes(formattedDateQuery.toLowerCase());
+        const dateMatch = !dateSearchBar.value || workoutDate.includes(dateQuery.toLowerCase());
         return textMatch && dateMatch;
       });
 

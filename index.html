@@ -267,7 +267,7 @@
     <!-- Calendar icon for date picker -->
     <i class="fas fa-calendar-alt calendar-icon" id="calendarIcon"></i>
 
-    <!-- Date picker field (hidden) -->
+    <!-- Date picker field -->
     <input type="text" class="date-picker" id="dateSearchBar">
 
     <!-- Reset button -->
@@ -288,8 +288,8 @@
     const searchBar = document.getElementById('searchBar');
     const dateSearchBar = document.getElementById('dateSearchBar');
     const calendarIcon = document.getElementById('calendarIcon');
-    const searchInfo = document.getElementById('searchInfo');
     const resetBtn = document.getElementById('resetBtn');
+    const searchInfo = document.getElementById('searchInfo');
     let workoutData = [];  // To hold the parsed CSV data
 
     // Google Sheets CSV URL
@@ -425,10 +425,11 @@
       populateWorkoutCards(filteredData);
     });
 
-    // Initialize Flatpickr
+    // Initialize Flatpickr with mobile-friendly settings
     flatpickr("#dateSearchBar", {
+      dateFormat: "Y-m-d",
+      clickOpens: true,  // Ensures it opens on mobile properly
       onChange: function(selectedDates, dateStr) {
-        // Handle the date change event
         const selectedDate = new Date(dateStr);
         const formattedDate = formatDate(selectedDate.toISOString().slice(0, 10));
 

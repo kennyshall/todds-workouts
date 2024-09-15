@@ -271,7 +271,7 @@
     <input type="text" class="date-picker" id="dateSearchBar">
 
     <!-- Reset button -->
-    <button class="reset-btn" id="resetBtn">Reset</button>
+    <button class="reset-btn" id="resetBtn">Resets</button>
   </div>
 
   <!-- Container to display search information (date, search term, result count) -->
@@ -296,7 +296,7 @@
     const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTl2VdbYSUhw2XHpmciqbOgvKt-MjqjdCEoVvy0coNODObnn18qxNMHOszL0EyOEqqV1OJYNAZm2wT/pub?output=csv';
 
     // Automatically load the Google Sheets data on page load
-    window.addEventListener('DOMContentLoaded', function() {
+    function loadWorkoutData() {
       fetch(csvUrl)
         .then(response => response.text())
         .then(csvData => {
@@ -314,7 +314,7 @@
           });
         })
         .catch(error => console.error('Error fetching the CSV:', error));
-    });
+    }
 
     // Function to format date as "Day, Month DateSuffix, Year"
     function formatDate(dateString) {
@@ -445,12 +445,15 @@
       dateSearchBar._flatpickr.open();
     });
 
-    // Reset the search and date picker
+    // Reload the Google Sheets data and clear the search
     resetBtn.addEventListener('click', function() {
       searchBar.value = '';
       dateSearchBar._flatpickr.clear();
-      populateWorkoutCards(workoutData);  // Reload all workouts
+      loadWorkoutData();  // Reload data from Google Sheets
     });
+
+    // Load the workout data on page load
+    loadWorkoutData();
   </script>
 
 </body>

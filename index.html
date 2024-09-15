@@ -431,28 +431,34 @@
       clickOpens: true,  // Ensures it opens properly
       disableMobile: true,  // Force Flatpickr on mobile devices
       onChange: function(selectedDates, dateStr) {
-        const selectedDate = new Date(dateStr);
-        const formattedDate = formatDate(selectedDate.toISOString().slice(0, 10));
+        // Check if selectedDates has a valid date
+        if (selectedDates.length > 0) {
+          const selectedDate = new Date(dateStr);
+          const formattedDate = formatDate(selectedDate.toISOString().slice(0, 10));
     
-        // Filter the workout data based on the selected date
-        const filteredData = workoutData.filter(row => row['Workout Date'] === formattedDate);
+          // Filter the workout data based on the selected date
+          const filteredData = workoutData.filter(row => row['Workout Date'] === formattedDate);
     
-        // Repopulate the workout cards with the filtered data
-        populateWorkoutCards(filteredData);
+          // Repopulate the workout cards with the filtered data
+          populateWorkoutCards(filteredData);
+        } else {
+          // If no date is selected, reset to show all workouts
+          populateWorkoutCards(workoutData);
+        }
       }
     });
-
+    
     // Open Flatpickr when the calendar icon is clicked
     calendarIcon.addEventListener('click', function() {
       dateSearchBar._flatpickr.open();
     });
-
+    
     // Reload the Google Sheets data and clear the search
     resetBtn.addEventListener('click', function() {
       searchBar.value = '';
       dateSearchBar._flatpickr.clear();  // Clear Flatpickr date picker
       searchInfo.innerHTML = '';  // Clear the search info text
-      loadWorkoutData();  // Reload data from Google Sheets
+      populateWorkoutCards(workoutData);  // Show all data without filter
     });
 
     // Load the workout data on page load

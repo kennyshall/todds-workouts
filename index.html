@@ -13,13 +13,17 @@
       padding: 0;
     }
 
-    /* Main title container to hold the image and text side by side */
+    /* Sticky header */
     .main-title-container {
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 40px 0 20px;
       flex-wrap: wrap;
+      background-color: rgb(0,86,149);
+      position: sticky;
+      top: 0;
+      z-index: 999;
     }
 
     /* Main title styling */
@@ -43,6 +47,7 @@
       padding: 20px;
       color: #d3d3d3;
       font-size: 1.8em;
+      background-color: rgb(0,86,149);
     }
 
     .workout-container {
@@ -181,13 +186,33 @@
     .flatpickr-calendar {
       top: 50% !important;
       left: 50% !important;
-      transform: translate(-50%, -50%) !important;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Back to top button */
+    .back-to-top {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: none;
+      font-size: 16px;
+      padding: 10px 20px;
+      background-color: #003c6d;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      z-index: 1000;
+    }
+
+    .back-to-top:hover {
+      background-color: #002a50;
     }
 
     /* Add margin to the right of the calendar icon on mobile */
     @media (max-width: 768px) {
       .calendar-icon {
-        margin: 0 10px 0 10px;
+        margin-right: 10px;
       }
 
       .main-title-container {
@@ -289,6 +314,9 @@
     <!-- Dynamic workout cards will be inserted here -->
   </div>
 
+  <!-- Back to top button -->
+  <button class="back-to-top" id="backToTop">Back to Top</button>
+
   <script>
     // Reference to the workout container, search bars, and search info display
     const workoutContainer = document.getElementById('workoutContainer');
@@ -297,6 +325,7 @@
     const calendarIcon = document.getElementById('calendarIcon');
     const resetBtn = document.getElementById('resetBtn');
     const searchInfo = document.getElementById('searchInfo');
+    const backToTopBtn = document.getElementById('backToTop');
     let workoutData = [];  // To hold the parsed CSV data
 
     // Google Sheets CSV URL
@@ -413,6 +442,20 @@
       searchInfo.innerHTML = `<strong>Search Term:</strong> ${searchTerm} | <strong>Date:</strong> ${selectedDate} | <strong>Results:</strong> ${data.length}`;
     }
 
+    // Scroll to the top when the back-to-top button is clicked
+    backToTopBtn.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Show the back-to-top button when scrolling down
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 200) {
+        backToTopBtn.style.display = 'block';
+      } else {
+        backToTopBtn.style.display = 'none';
+      }
+    });
+
     // Search functionality for text
     searchBar.addEventListener('input', function() {
       const query = searchBar.value.toLowerCase();
@@ -454,12 +497,12 @@
         }
       }
     });
-    
+
     // Open Flatpickr when the calendar icon is clicked
     calendarIcon.addEventListener('click', function() {
       dateSearchBar._flatpickr.open();
     });
-    
+
     // Reload the Google Sheets data and clear the search
     resetBtn.addEventListener('click', function() {
       searchBar.value = '';

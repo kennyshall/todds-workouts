@@ -428,14 +428,15 @@
     // Initialize Flatpickr with mobile-friendly settings
     flatpickr("#dateSearchBar", {
       dateFormat: "Y-m-d",
-      clickOpens: true,  // Ensures it opens on mobile properly
+      clickOpens: true,  // Ensures it opens properly
+      disableMobile: true,  // Force Flatpickr on mobile devices
       onChange: function(selectedDates, dateStr) {
         const selectedDate = new Date(dateStr);
         const formattedDate = formatDate(selectedDate.toISOString().slice(0, 10));
-
+    
         // Filter the workout data based on the selected date
         const filteredData = workoutData.filter(row => row['Workout Date'] === formattedDate);
-
+    
         // Repopulate the workout cards with the filtered data
         populateWorkoutCards(filteredData);
       }

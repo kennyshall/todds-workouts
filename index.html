@@ -271,7 +271,7 @@
     <input type="text" class="date-picker" id="dateSearchBar">
 
     <!-- Reset button -->
-    <button class="reset-btn" id="resetBtn">Resets</button>
+    <button class="reset-btn" id="resetBtn">Reset</button>
   </div>
 
   <!-- Container to display search information (date, search term, result count) -->
@@ -448,7 +448,8 @@
     // Reload the Google Sheets data and clear the search
     resetBtn.addEventListener('click', function() {
       searchBar.value = '';
-      dateSearchBar._flatpickr.clear();
+      dateSearchBar._flatpickr.clear();  // Clear Flatpickr date picker
+      searchInfo.innerHTML = '';  // Clear the search info text
       loadWorkoutData();  // Reload data from Google Sheets
     });
 

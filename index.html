@@ -13,8 +13,9 @@
       padding: 0;
     }
 
+    /* Sticky header */
     .main-title-container {
-      display: flex;
+      display: none; /* Hide the image and name */
       align-items: center;
       justify-content: center;
       padding: 10px 0 10px;
@@ -25,11 +26,35 @@
       z-index: 999;
     }
 
+    /* Make search bar sticky */
+    .search-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin: 20px auto;
+      max-width: 800px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background-color: rgb(0,86,149);
+      padding: 10px;
+    }
+
+    /* Main title styling */
     .main-title {
       font-size: 36px;
       font-weight: bold;
       margin-left: 15px;
       color: #d3d3d3;
+    }
+
+    /* Style for the circular image */
+    .thumbnail {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
     }
 
     h1 {
@@ -67,141 +92,422 @@
       margin-bottom: 15px;
     }
 
+    .workout-card .date span {
+      display: block;
+      font-size: 16px;
+      color: #d3d3d3;
+    }
+
+    .workout-card .date .day {
+      font-size: 28px;
+      color: #d3d3d3;
+    }
+
+    .workout-card .date .year {
+      font-size: 16px;
+      color: #d3d3d3;
+    }
+
     .workout-info h2 {
       margin: 0;
       font-size: 20px;
       color: #003c6d;
     }
 
-    /* Form to add new workout */
-    .add-workout-form {
-      margin: 20px auto;
-      max-width: 800px;
-      padding: 20px;
-      background-color: #f0f0f0;
-      border-radius: 10px;
+    .workout-info .status {
+      margin: 10px 0;
     }
 
-    .add-workout-form input, .add-workout-form textarea {
-      width: 100%;
-      padding: 10px;
+    .status.completed {
+      color: #d3d3d3;
+      background-color: rgb(142,170,133);
+      padding: 5px 10px;
+      border-radius: 5px;
+      display: inline-block;
+    }
+
+    .status.missed {
+      color: #d3d3d3;
+      background-color: #C25A5A;
+      padding: 5px 10px;
+      border-radius: 5px;
+      display: inline-block;
+    }
+
+    .workout-info .details,
+    .workout-info .comments {
       margin: 10px 0;
+      color: #003c6d;
+      white-space: pre-wrap;
+    }
+
+    .workout-info .comments .comment {
+      margin-bottom: 5px;
+    }
+
+    /* Search bar styling */
+    .search-bar {
+      padding: 10px;
+      font-size: 16px;
+      flex-grow: 1;
       border-radius: 5px;
       border: 1px solid #5995C4;
+      background-color: #d3d3d3;
+      color: #003c6d;
     }
 
-    .add-workout-form button {
-      padding: 10px;
-      background-color: #003c6d;
-      color: white;
-      border: none;
-      border-radius: 5px;
+    /* Hidden date picker */
+    .date-picker {
+      display: none;
+    }
+
+    /* Style for the calendar icon */
+    .calendar-icon {
+      font-size: 24px;
       cursor: pointer;
     }
 
-    .add-workout-form button:hover {
+    /* Reset button */
+    .reset-btn {
+      padding: 10px;
+      background-color: #C25A5A;
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .reset-btn:hover {
+      background-color: #d9534f;
+    }
+
+    /* Center search results info */
+    .search-info {
+      text-align: center;
+      margin-top: 20px;
+      position: sticky;
+      top: 60px;
+      z-index: 1000;
+      background-color: rgb(0,86,149);
+      padding: 10px;
+    }
+
+    /* Back to top button */
+    .back-to-top {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: none;
+      font-size: 16px;
+      padding: 10px 20px;
+      background-color: #003c6d;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      z-index: 1000;
+    }
+
+    .back-to-top:hover {
       background-color: #002a50;
     }
+
+    /* Add margin to the right of the calendar icon on mobile */
+    @media (max-width: 768px) {
+      .calendar-icon {
+        margin-right: 10px;
+      }
+
+      .main-title-container {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .main-title {
+        font-size: 24px;
+        margin-left: 0;
+      }
+
+      .thumbnail {
+        width: 60px;
+        height: 60px;
+      }
+
+      h1 {
+        font-size: 1.5em;
+      }
+
+      .workout-card {
+        padding: 15px;
+      }
+
+      .workout-card .date {
+        padding: 8px;
+        margin-right: 0;
+        margin-bottom: 15px;
+      }
+
+      .workout-card .date .day {
+        font-size: 24px;
+      }
+
+      .workout-card .date .year {
+        font-size: 14px;
+      }
+
+      .workout-info h2 {
+        font-size: 18px;
+      }
+
+      .status.completed, .status.missed {
+        font-size: 14px;
+        padding: 5px 8px;
+      }
+
+      .workout-info .details, .workout-info .comments {
+        font-size: 14px;
+      }
+
+      .search-bar {
+        width: 100%;
+        margin-left: 10px;
+      }
+    }
   </style>
+  <!-- Load PapaParse library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+  <!-- Load Font Awesome for Calendar Icon -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+  <!-- Flatpickr -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body>
 
-  <h1>Find and review workouts</h1>
+  <h1>Workout Logs</h1>
 
-  <!-- Add Workout Form -->
-  <div class="add-workout-form">
-    <h2>Add New Workout</h2>
-    <form id="workoutForm">
-      <input type="text" id="workoutDate" placeholder="Workout Date (YYYY-MM-DD)" required>
-      <input type="text" id="workoutHeader" placeholder="Workout Header" required>
-      <textarea id="workoutDetails" placeholder="Workout Full Details" rows="5" required></textarea>
-      <input type="text" id="workoutTag" placeholder="Status (Completed/Missed)" required>
-      <textarea id="workoutComments" placeholder="Comments (Optional)" rows="3"></textarea>
-      <button type="submit">Add Workout</button>
-    </form>
+  <!-- Flex container for search bar and datepicker icon -->
+  <div class="search-container">
+    <!-- Text search bar -->
+    <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Find and review workouts">
+
+    <!-- Calendar icon for date picker -->
+    <i class="fas fa-calendar-alt calendar-icon" id="calendarIcon"></i>
+
+    <!-- Date picker field -->
+    <input type="text" class="date-picker" id="dateSearchBar">
+
+    <!-- Reset button -->
+    <button class="reset-btn" id="resetBtn">Reset</button>
   </div>
+
+  <!-- Container to display search information (date, search term, result count) -->
+  <div class="search-info" id="searchInfo"></div>
 
   <!-- Workout container -->
   <div class="workout-container" id="workoutContainer">
     <!-- Dynamic workout cards will be inserted here -->
   </div>
 
+  <!-- Back to top button -->
+  <button class="back-to-top" id="backToTop">Back to Top</button>
+
   <script>
-    const SHEET_ID = 'YOUR_SHEET_ID'; // Replace with your Google Sheet ID
-    const API_KEY = 'YOUR_API_KEY';   // Replace with your Google Sheets API Key
-    const SHEET_RANGE = 'Sheet1!A:E'; // Adjust based on your sheet structure (A-E: Date, Header, Details, Tag, Comments)
-
-    const form = document.getElementById('workoutForm');
+    // Reference to the workout container, search bars, and search info display
     const workoutContainer = document.getElementById('workoutContainer');
+    const searchBar = document.getElementById('searchBar');
+    const dateSearchBar = document.getElementById('dateSearchBar');
+    const calendarIcon = document.getElementById('calendarIcon');
+    const resetBtn = document.getElementById('resetBtn');
+    const searchInfo = document.getElementById('searchInfo');
+    const backToTopBtn = document.getElementById('backToTop');
+    let workoutData = [];  // To hold the parsed CSV data
 
-    // Form submission handler
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const workoutDate = document.getElementById('workoutDate').value;
-      const workoutHeader = document.getElementById('workoutHeader').value;
-      const workoutDetails = document.getElementById('workoutDetails').value;
-      const workoutTag = document.getElementById('workoutTag').value;
-      const workoutComments = document.getElementById('workoutComments').value;
+    // Google Sheets CSV URL
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTl2VdbYSUhw2XHpmciqbOgvKt-MjqjdCEoVvy0coNODObnn18qxNMHOszL0EyOEqqV1OJYNAZm2wT/pub?output=csv';
 
-      const newWorkout = [
-        workoutDate,
-        workoutHeader,
-        workoutDetails,
-        workoutTag,
-        workoutComments
-      ];
+    // Automatically load the Google Sheets data on page load
+    function loadWorkoutData() {
+      fetch(csvUrl)
+        .then(response => response.text())
+        .then(csvData => {
+          // Parse the CSV data using PapaParse
+          Papa.parse(csvData, {
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+              workoutData = results.data;  // Store the data
+              populateWorkoutCards(workoutData);  // Populate the workout cards
+            },
+            error: function(error) {
+              console.error('Error parsing CSV:', error);
+            }
+          });
+        })
+        .catch(error => console.error('Error fetching the CSV:', error));
+    }
 
-      // Append new workout to Google Sheet
-      await addWorkoutToSheet(newWorkout);
-      alert("New workout added!");
-      form.reset(); // Reset form after submission
+    // Function to format date as "Day, Month DateSuffix, Year"
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const monthsOfYear = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const dayOfWeek = daysOfWeek[date.getUTCDay()];
+      const month = monthsOfYear[date.getUTCMonth()];
+      const day = date.getUTCDate();
+      const year = date.getUTCFullYear();
+
+      let suffix = 'th';
+      if (day === 1 || day === 21 || day === 31) suffix = 'st';
+      else if (day === 2 || day === 22) suffix = 'nd';
+      else if (day === 3 || day === 23) suffix = 'rd';
+
+      return `${dayOfWeek}, ${month} ${day}${suffix}, ${year}`;
+    }
+
+    // Function to populate workout cards dynamically
+    function populateWorkoutCards(data) {
+      workoutContainer.innerHTML = '';  // Clear existing cards
+
+      if (data.length === 0) {
+        const noResultsMessage = document.createElement('p');
+        noResultsMessage.textContent = 'No workouts found for the selected date.';
+        noResultsMessage.style.textAlign = 'center';
+        workoutContainer.appendChild(noResultsMessage);
+        return;
+      }
+
+      data.forEach(row => {
+        const card = document.createElement('div');
+        card.classList.add('workout-card');
+
+        // Extract the date parts: Day, Month, Year
+        const dateParts = row['Workout Date'].split(',');
+        const monthDay = dateParts[1].trim().split(' ');
+        const year = dateParts[2].trim(); // Extract the year
+
+        // Create date element
+        const dateElement = document.createElement('div');
+        dateElement.classList.add('date');
+        dateElement.innerHTML = `
+          <span>${monthDay[0].toUpperCase()}</span>
+          <span class="day">${monthDay[1]}</span>
+          <span class="year">${year}</span>
+        `;
+        card.appendChild(dateElement);
+
+        // Create workout info element
+        const workoutInfo = document.createElement('div');
+        workoutInfo.classList.add('workout-info');
+        
+        const header = document.createElement('h2');
+        header.textContent = row['Workout Header'];
+        workoutInfo.appendChild(header);
+
+        // Create status element
+        const status = document.createElement('div');
+        status.classList.add('status', row['Tag'].toLowerCase());
+        status.textContent = row['Tag'] === 'Completed' ? 'Completed' : 'Missed';
+        workoutInfo.appendChild(status);
+
+        // Create details element with preserved formatting
+        const details = document.createElement('div');
+        details.classList.add('details');
+        details.textContent = row['Workout Full Details'];
+        workoutInfo.appendChild(details);
+
+        // Create comments element if available, with preserved formatting
+        if (row['Comments']) {
+          const comments = document.createElement('div');
+          comments.classList.add('comments');
+          comments.innerHTML = row['Comments']
+            .split('\n')
+            .map(comment => `<div class="comment">${comment}</div>`)
+            .join('');
+          workoutInfo.appendChild(comments);
+        }
+
+        card.appendChild(workoutInfo);
+        workoutContainer.appendChild(card);  // Append the card to the workout container
+      });
+
+      // Display the search info (date, search term, result count)
+      const searchTerm = searchBar.value || 'N/A';
+      const selectedDate = dateSearchBar.value ? formatDate(dateSearchBar.value) : 'N/A';
+      searchInfo.innerHTML = `<strong>Search Term:</strong> ${searchTerm} | <strong>Date:</strong> ${selectedDate} | <strong>Results:</strong> ${data.length}`;
+    }
+
+    // Scroll to the top when the back-to-top button is clicked
+    backToTopBtn.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    async function addWorkoutToSheet(data) {
-      const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_RANGE}:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
-
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          values: [data]
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to add new workout');
+    // Show the back-to-top button when scrolling down
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 200) {
+        backToTopBtn.style.display = 'block';
+      } else {
+        backToTopBtn.style.display = 'none';
       }
-    }
+    });
 
-    // Load workout data from Google Sheets on page load
-    async function loadWorkoutData() {
-      const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_RANGE}?key=${API_KEY}`;
-      const response = await fetch(apiUrl);
-      const data = await response.json();
-      displayWorkoutData(data.values);
-    }
+    // Search functionality for text
+    searchBar.addEventListener('input', function() {
+      const query = searchBar.value.toLowerCase();
 
-    // Function to display workouts
-    function displayWorkoutData(workouts) {
-      workoutContainer.innerHTML = '';
-      workouts.forEach((row) => {
-        const workoutCard = document.createElement('div');
-        workoutCard.classList.add('workout-card');
-        workoutCard.innerHTML = `
-          <div class="date">${row[0]}</div>
-          <h2>${row[1]}</h2>
-          <p>${row[2]}</p>
-          <p><strong>Status:</strong> ${row[3]}</p>
-          <p><strong>Comments:</strong> ${row[4] || 'None'}</p>
-        `;
-        workoutContainer.appendChild(workoutCard);
+      // Filter the workout data based on the search query
+      const filteredData = workoutData.filter(row => {
+        return (
+          row['Workout Date'].toLowerCase().includes(query) ||
+          row['Tag'].toLowerCase().includes(query) ||
+          row['Workout Header'].toLowerCase().includes(query) ||
+          row['Workout Full Details'].toLowerCase().includes(query) ||
+          (row['Comments'] && row['Comments'].toLowerCase().includes(query))
+        );
       });
-    }
 
-    // Load workout data on page load
+      // Repopulate the workout cards with the filtered data
+      populateWorkoutCards(filteredData);
+    });
+
+    // Initialize Flatpickr with mobile-friendly settings
+    flatpickr("#dateSearchBar", {
+      dateFormat: "Y-m-d",
+      clickOpens: true,  // Ensures it opens properly
+      disableMobile: true,  // Force Flatpickr on mobile devices
+      onChange: function(selectedDates, dateStr) {
+        // Check if selectedDates has a valid date
+        if (selectedDates.length > 0) {
+          const selectedDate = new Date(dateStr);
+          const formattedDate = formatDate(selectedDate.toISOString().slice(0, 10));
+    
+          // Filter the workout data based on the selected date
+          const filteredData = workoutData.filter(row => row['Workout Date'] === formattedDate);
+    
+          // Repopulate the workout cards with the filtered data
+          populateWorkoutCards(filteredData);
+        } else {
+          // If no date is selected, reset to show all workouts
+          populateWorkoutCards(workoutData);
+        }
+      }
+    });
+
+    // Open Flatpickr when the calendar icon is clicked
+    calendarIcon.addEventListener('click', function() {
+      dateSearchBar._flatpickr.open();
+    });
+
+    // Reload the Google Sheets data and clear the search
+    resetBtn.addEventListener('click', function() {
+      searchBar.value = '';
+      dateSearchBar._flatpickr.clear();  // Clear Flatpickr date picker
+      searchInfo.innerHTML = '';  // Clear the search info text
+      populateWorkoutCards(workoutData);  // Show all data without filter
+    });
+
+    // Load the workout data on page load
     loadWorkoutData();
   </script>
 

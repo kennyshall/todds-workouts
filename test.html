@@ -12,8 +12,9 @@
       margin: 0;
       padding: 0;
     }
+
     .main-title-container {
-      display: none;
+      display: none; 
       align-items: center;
       justify-content: center;
       padding: 10px 0 10px;
@@ -23,6 +24,7 @@
       top: 0;
       z-index: 999;
     }
+
     .search-container {
       display: flex;
       justify-content: center;
@@ -36,17 +38,20 @@
       background-color: rgb(0,86,149);
       padding: 10px;
     }
+
     .main-title {
       font-size: 36px;
       font-weight: bold;
       margin-left: 15px;
       color: #d3d3d3;
     }
+
     .workout-container {
       max-width: 800px;
       margin: 0 auto;
       padding: 20px;
     }
+
     .workout-card {
       background-color: #d3d3d3;
       border: 1px solid #5995C4;
@@ -54,13 +59,69 @@
       padding: 20px;
       margin-bottom: 20px;
       display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      box-shadow: 0 2px 10px rgba(0, 60, 109, 0.2);
       flex-direction: column;
     }
+
+    .workout-card .date {
+      background-color: rgb(142,170,133);
+      border-radius: 8px;
+      text-align: center;
+      padding: 10px;
+      margin-bottom: 15px;
+    }
+
+    .workout-card .date span {
+      display: block;
+      font-size: 16px;
+      color: #d3d3d3;
+    }
+
+    .workout-card .date .day {
+      font-size: 28px;
+      color: #d3d3d3;
+    }
+
+    .workout-card .date .year {
+      font-size: 16px;
+      color: #d3d3d3;
+    }
+
     .workout-info h2 {
       margin: 0;
       font-size: 20px;
       color: #003c6d;
     }
+
+    .workout-info .status {
+      margin: 10px 0;
+    }
+
+    .status.completed {
+      color: #d3d3d3;
+      background-color: rgb(142,170,133);
+      padding: 5px 10px;
+      border-radius: 5px;
+      display: inline-block;
+    }
+
+    .status.missed {
+      color: #d3d3d3;
+      background-color: #C25A5A;
+      padding: 5px 10px;
+      border-radius: 5px;
+      display: inline-block;
+    }
+
+    .workout-info .details,
+    .workout-info .comments {
+      margin: 10px 0;
+      color: #003c6d;
+      white-space: pre-wrap;
+    }
+
     .update-details-form textarea {
       width: 100%;
       height: 80px;
@@ -69,6 +130,7 @@
       border: 1px solid #003c6d;
       border-radius: 5px;
     }
+
     .update-btn {
       background-color: #003c6d;
       color: white;
@@ -78,6 +140,8 @@
       cursor: pointer;
       margin-top: 10px;
     }
+
+    /* Other styles from the original code */
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 </head>
@@ -126,6 +190,18 @@
         const card = document.createElement('div');
         card.classList.add('workout-card');
 
+        const dateElement = document.createElement('div');
+        dateElement.classList.add('date');
+        const dateParts = row['Workout Date'].split(',');
+        const monthDay = dateParts[1].trim().split(' ');
+        const year = dateParts[2].trim();
+        dateElement.innerHTML = `
+          <span>${monthDay[0].toUpperCase()}</span>
+          <span class="day">${monthDay[1]}</span>
+          <span class="year">${year}</span>
+        `;
+        card.appendChild(dateElement);
+
         const workoutInfo = document.createElement('div');
         workoutInfo.classList.add('workout-info');
 
@@ -133,10 +209,25 @@
         header.textContent = row['Workout Header'];
         workoutInfo.appendChild(header);
 
+        const status = document.createElement('div');
+        status.classList.add('status', row['Tag'].toLowerCase());
+        status.textContent = row['Tag'] === 'Completed' ? 'Completed' : 'Missed';
+        workoutInfo.appendChild(status);
+
         const details = document.createElement('div');
         details.classList.add('details');
         details.textContent = row['Workout Full Details'];
         workoutInfo.appendChild(details);
+
+        if (row['Comments']) {
+          const comments = document.createElement('div');
+          comments.classList.add('comments');
+          comments.innerHTML = row['Comments']
+            .split('\n')
+            .map(comment => `<div class="comment">${comment}</div>`)
+            .join('');
+          workoutInfo.appendChild(comments);
+        }
 
         // Create the update details form
         const updateForm = document.createElement('div');
@@ -156,20 +247,17 @@
     function updateWorkoutDetails(event, row) {
       event.preventDefault();
 
-      // Get the new workout details
       const newDetails = event.target.previousElementSibling.value;
 
-      // Get the index of the row in the Google Sheets
       const rowIndex = workoutData.findIndex(workout => workout['Workout Header'] === row['Workout Header']);
-      const sheetId = '1dF6JKnpWTV618YAH4veldTwgstKVtHFbcYiTo8fA7qM';  // Your Google Sheet ID
-      const apiKey = 'AIzaSyDXud-hgDwMb2xC4rCicVUr8s7WufFjU3Y';  // Your API Key
+      const sheetId = '1dF6JKnpWTV618YAH4veldTwgstKVtHFbcYiTo8fA7qM';
+      const apiKey = 'AIzaSyDXud-hg';
 
       const payload = {
-        range: `Sheet1!D${rowIndex + 2}`,  // Assuming Workout Full Details is in column D
+        range: `Sheet1!D${rowIndex + 2}`,
         values: [[newDetails]]
       };
 
-      // Update Google Sheet using Google Sheets API
       fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${payload.range}?valueInputOption=RAW&key=${apiKey}`, {
         method: 'PUT',
         headers: {
@@ -195,7 +283,6 @@
         });
     }
 
-    // Load the workout data on page load
     loadWorkoutData();
   </script>
 

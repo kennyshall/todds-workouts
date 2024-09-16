@@ -493,7 +493,7 @@
       const apiKey = 'AIzaSyDXud-hgDwMb2xC4rCicVUr8s7WufFjU3Y';
 
       const payload = {
-        range: `Sheet1!D${rowIndex}`,
+        range: `todds-truecoach-workouts-year.csv!D${rowIndex}`, // Updated with correct sheet name
         values: [[newDetails]]
       };
 
@@ -515,10 +515,12 @@
             loadWorkoutData();
           } else {
             alert('Failed to update workout details.');
+            console.error('API response:', data);
           }
         })
         .catch(error => {
-          console.error('Error updating workout details:', error);
+          alert('Error updating workout details.');
+          console.error('Error:', error);
         });
     }
 

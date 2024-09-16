@@ -46,6 +46,16 @@
       color: #d3d3d3;
     }
 
+    .search-bar {
+      padding: 10px;
+      font-size: 16px;
+      flex-grow: 1;
+      border-radius: 5px;
+      border: 1px solid #5995C4;
+      background-color: #d3d3d3;
+      color: #003c6d;
+    }
+
     .workout-container {
       max-width: 800px;
       margin: 0 auto;
@@ -141,7 +151,81 @@
       margin-top: 10px;
     }
 
-    /* Other styles from the original code */
+    .back-to-top {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: none;
+      font-size: 16px;
+      padding: 10px 20px;
+      background-color: #003c6d;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      z-index: 1000;
+    }
+
+    .back-to-top:hover {
+      background-color: #002a50;
+    }
+
+    /* Add margin to the right of the calendar icon on mobile */
+    @media (max-width: 768px) {
+      .calendar-icon {
+        margin-right: 10px;
+      }
+
+      .main-title-container {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .main-title {
+        font-size: 24px;
+        margin-left: 0;
+      }
+
+      h1 {
+        font-size: 1.5em;
+      }
+
+      .workout-card {
+        padding: 15px;
+      }
+
+      .workout-card .date {
+        padding: 8px;
+        margin-right: 0;
+        margin-bottom: 15px;
+      }
+
+      .workout-card .date .day {
+        font-size: 24px;
+      }
+
+      .workout-card .date .year {
+        font-size: 14px;
+      }
+
+      .workout-info h2 {
+        font-size: 18px;
+      }
+
+      .status.completed, .status.missed {
+        font-size: 14px;
+        padding: 5px 8px;
+      }
+
+      .workout-info .details, .workout-info .comments {
+        font-size: 14px;
+      }
+
+      .search-bar {
+        width: 100%;
+        margin-left: 10px;
+      }
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 </head>
@@ -149,20 +233,31 @@
 
   <h1>Workout Logs</h1>
 
+  <!-- Flex container for search bar and datepicker icon -->
+  <div class="search-container">
+    <!-- Text search bar -->
+    <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Find and review workouts">
+  </div>
+
   <!-- Workout container -->
   <div class="workout-container" id="workoutContainer">
     <!-- Dynamic workout cards will be inserted here -->
   </div>
 
+  <!-- Back to top button -->
+  <button class="back-to-top" id="backToTop">Back to Top</button>
+
   <script>
-    // Reference to the workout container
+    // Reference to the workout container, search bars, and back-to-top button
     const workoutContainer = document.getElementById('workoutContainer');
+    const searchBar = document.getElementById('searchBar');
+    const backToTopBtn = document.getElementById('backToTop');
     let workoutData = [];
 
     // Google Sheets CSV URL
     const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTl2VdbYSUhw2XHpmciqbOgvKt-MjqjdCEoVvy0coNODObnn18qxNMHOszL0EyOEqqV1OJYNAZm2wT/pub?output=csv';
 
-    // Load Google Sheets data
+    // Automatically load the Google Sheets data on page load
     function loadWorkoutData() {
       fetch(csvUrl)
         .then(response => response.text())
@@ -229,60 +324,45 @@
           workoutInfo.appendChild(comments);
         }
 
-        // Create the update details form
-        const updateForm = document.createElement('div');
-        updateForm.classList.add('update-details-form');
-        updateForm.innerHTML = `
-          <textarea id="updateDetails" placeholder="Enter new workout details"></textarea>
-          <button class="update-btn" onclick="updateWorkoutDetails(event, row)">Update</button>
-        `;
-        workoutInfo.appendChild(updateForm);
-
         card.appendChild(workoutInfo);
         workoutContainer.appendChild(card);
       });
     }
 
-    // Function to update workout details
-    function updateWorkoutDetails(event, row) {
-      event.preventDefault();
+    // Search functionality for text
+    searchBar.addEventListener('input', function() {
+      const query = searchBar.value.toLowerCase();
 
-      const newDetails = event.target.previousElementSibling.value;
+      // Filter the workout data based on the search query
+      const filteredData = workoutData.filter(row => {
+        return (
+          row['Workout Date'].toLowerCase().includes(query) ||
+          row['Tag'].toLowerCase().includes(query) ||
+          row['Workout Header'].toLowerCase().includes(query) ||
+          row['Workout Full Details'].toLowerCase().includes(query) ||
+          (row['Comments'] && row['Comments'].toLowerCase().includes(query))
+        );
+      });
 
-      const rowIndex = workoutData.findIndex(workout => workout['Workout Header'] === row['Workout Header']);
-      const sheetId = '1dF6JKnpWTV618YAH4veldTwgstKVtHFbcYiTo8fA7qM';
-      const apiKey = 'AIzaSyDXud-hg';
+      // Repopulate the workout cards with the filtered data
+      populateWorkoutCards(filteredData);
+    });
 
-      const payload = {
-        range: `Sheet1!D${rowIndex + 2}`,
-        values: [[newDetails]]
-      };
+    // Scroll to the top when the back-to-top button is clicked
+    backToTopBtn.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
 
-      fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${payload.range}?valueInputOption=RAW&key=${apiKey}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          range: payload.range,
-          majorDimension: 'ROWS',
-          values: payload.values
-        })
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.updatedCells > 0) {
-            alert('Workout details updated successfully!');
-            loadWorkoutData();  // Reload data to reflect changes
-          } else {
-            alert('Failed to update workout details.');
-          }
-        })
-        .catch(error => {
-          console.error('Error updating workout details:', error);
-        });
-    }
+    // Show the back-to-top button when scrolling down
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 200) {
+        backToTopBtn.style.display = 'block';
+      } else {
+        backToTopBtn.style.display = 'none';
+      }
+    });
 
+    // Load the workout data on page load
     loadWorkoutData();
   </script>
 

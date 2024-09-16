@@ -15,7 +15,7 @@
 
     /* Sticky header */
     .main-title-container {
-      display: none; /* Hide the image and name */
+      display: none;
       align-items: center;
       justify-content: center;
       padding: 10px 0 10px;
@@ -26,7 +26,6 @@
       z-index: 999;
     }
 
-    /* Make search bar sticky */
     .search-container {
       display: flex;
       justify-content: center;
@@ -41,7 +40,6 @@
       padding: 10px;
     }
 
-    /* Main title styling */
     .main-title {
       font-size: 36px;
       font-weight: bold;
@@ -310,7 +308,6 @@
   <button class="back-to-top" id="backToTop">Back to Top</button>
 
   <script>
-    // Reference to the workout container, search bars, and search info display
     const workoutContainer = document.getElementById('workoutContainer');
     const searchBar = document.getElementById('searchBar');
     const dateSearchBar = document.getElementById('dateSearchBar');
@@ -318,23 +315,20 @@
     const resetBtn = document.getElementById('resetBtn');
     const searchInfo = document.getElementById('searchInfo');
     const backToTopBtn = document.getElementById('backToTop');
-    let workoutData = [];  // To hold the parsed CSV data
+    let workoutData = [];
 
-    // Google Sheets CSV URL
     const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTl2VdbYSUhw2XHpmciqbOgvKt-MjqjdCEoVvy0coNODObnn18qxNMHOszL0EyOEqqV1OJYNAZm2wT/pub?output=csv';
 
-    // Automatically load the Google Sheets data on page load
     function loadWorkoutData() {
       fetch(csvUrl)
         .then(response => response.text())
         .then(csvData => {
-          // Parse the CSV data using PapaParse
           Papa.parse(csvData, {
             header: true,
             skipEmptyLines: true,
             complete: function(results) {
-              workoutData = results.data;  // Store the data
-              populateWorkoutCards(workoutData);  // Populate the workout cards
+              workoutData = results.data;
+              populateWorkoutCards(workoutData);
             },
             error: function(error) {
               console.error('Error parsing CSV:', error);
@@ -344,7 +338,6 @@
         .catch(error => console.error('Error fetching the CSV:', error));
     }
 
-    // Function to format date as "Day, Month DateSuffix, Year"
     function formatDate(dateString) {
       const date = new Date(dateString);
       const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -362,9 +355,8 @@
       return `${dayOfWeek}, ${month} ${day}${suffix}, ${year}`;
     }
 
-    // Function to populate workout cards dynamically
     function populateWorkoutCards(data) {
-      workoutContainer.innerHTML = '';  // Clear existing cards
+      workoutContainer.innerHTML = '';
 
       if (data.length === 0) {
         const noResultsMessage = document.createElement('p');
@@ -374,16 +366,14 @@
         return;
       }
 
-      data.forEach(row => {
+      data.forEach((row, index) => {
         const card = document.createElement('div');
         card.classList.add('workout-card');
 
-        // Extract the date parts: Day, Month, Year
         const dateParts = row['Workout Date'].split(',');
         const monthDay = dateParts[1].trim().split(' ');
-        const year = dateParts[2].trim(); // Extract the year
+        const year = dateParts[2].trim();
 
-        // Create date element
         const dateElement = document.createElement('div');
         dateElement.classList.add('date');
         dateElement.innerHTML = `
@@ -393,7 +383,6 @@
         `;
         card.appendChild(dateElement);
 
-        // Create workout info element
         const workoutInfo = document.createElement('div');
         workoutInfo.classList.add('workout-info');
         
@@ -401,19 +390,16 @@
         header.textContent = row['Workout Header'];
         workoutInfo.appendChild(header);
 
-        // Create status element
         const status = document.createElement('div');
         status.classList.add('status', row['Tag'].toLowerCase());
         status.textContent = row['Tag'] === 'Completed' ? 'Completed' : 'Missed';
         workoutInfo.appendChild(status);
 
-        // Create details element with preserved formatting
         const details = document.createElement('div');
         details.classList.add('details');
         details.textContent = row['Workout Full Details'];
         workoutInfo.appendChild(details);
 
-        // Create comments element if available, with preserved formatting
         if (row['Comments']) {
           const comments = document.createElement('div');
           comments.classList.add('comments');
@@ -424,44 +410,26 @@
           workoutInfo.appendChild(comments);
         }
 
-        // Add Update Workout Details form
         const updateForm = document.createElement('div');
         updateForm.classList.add('update-details-form');
         updateForm.innerHTML = `
-          <textarea id="updateDetails" placeholder="Enter new workout details"></textarea>
-          <button class="update-btn" onclick="updateWorkoutDetails(event, row)">Update</button>
+          <textarea id="updateDetails${index}" placeholder="Enter new workout details"></textarea>
+          <button class="update-btn" onclick="updateWorkoutDetails(event, ${index})">Update</button>
         `;
         workoutInfo.appendChild(updateForm);
 
         card.appendChild(workoutInfo);
-        workoutContainer.appendChild(card);  // Append the card to the workout container
+        workoutContainer.appendChild(card);
       });
 
-      // Display the search info (date, search term, result count)
       const searchTerm = searchBar.value || 'N/A';
       const selectedDate = dateSearchBar.value ? formatDate(dateSearchBar.value) : 'N/A';
       searchInfo.innerHTML = `<strong>Search Term:</strong> ${searchTerm} | <strong>Date:</strong> ${selectedDate} | <strong>Results:</strong> ${data.length}`;
     }
 
-    // Scroll to the top when the back-to-top button is clicked
-    backToTopBtn.addEventListener('click', function() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-
-    // Show the back-to-top button when scrolling down
-    window.addEventListener('scroll', function() {
-      if (window.scrollY > 200) {
-        backToTopBtn.style.display = 'block';
-      } else {
-        backToTopBtn.style.display = 'none';
-      }
-    });
-
-    // Search functionality for text
     searchBar.addEventListener('input', function() {
       const query = searchBar.value.toLowerCase();
 
-      // Filter the workout data based on the search query
       const filteredData = workoutData.filter(row => {
         return (
           row['Workout Date'].toLowerCase().includes(query) ||
@@ -472,60 +440,60 @@
         );
       });
 
-      // Repopulate the workout cards with the filtered data
       populateWorkoutCards(filteredData);
     });
 
-    // Initialize Flatpickr with mobile-friendly settings
     flatpickr("#dateSearchBar", {
       dateFormat: "Y-m-d",
-      clickOpens: true,  // Ensures it opens properly
-      disableMobile: true,  // Force Flatpickr on mobile devices
+      clickOpens: true,
+      disableMobile: true,
       onChange: function(selectedDates, dateStr) {
-        // Check if selectedDates has a valid date
         if (selectedDates.length > 0) {
           const selectedDate = new Date(dateStr);
           const formattedDate = formatDate(selectedDate.toISOString().slice(0, 10));
-    
-          // Filter the workout data based on the selected date
+
           const filteredData = workoutData.filter(row => row['Workout Date'] === formattedDate);
-    
-          // Repopulate the workout cards with the filtered data
           populateWorkoutCards(filteredData);
         } else {
-          // If no date is selected, reset to show all workouts
           populateWorkoutCards(workoutData);
         }
       }
     });
 
-    // Open Flatpickr when the calendar icon is clicked
     calendarIcon.addEventListener('click', function() {
       dateSearchBar._flatpickr.open();
     });
 
-    // Reload the Google Sheets data and clear the search
     resetBtn.addEventListener('click', function() {
       searchBar.value = '';
-      dateSearchBar._flatpickr.clear();  // Clear Flatpickr date picker
-      searchInfo.innerHTML = '';  // Clear the search info text
-      populateWorkoutCards(workoutData);  // Show all data without filter
+      dateSearchBar._flatpickr.clear();
+      searchInfo.innerHTML = '';
+      populateWorkoutCards(workoutData);
     });
 
-    // Function to update workout details
-    function updateWorkoutDetails(event, row) {
+    backToTopBtn.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 200) {
+        backToTopBtn.style.display = 'block';
+      } else {
+        backToTopBtn.style.display = 'none';
+      }
+    });
+
+    function updateWorkoutDetails(event, index) {
       event.preventDefault();
 
-      // Get the new workout details
-      const newDetails = event.target.previousElementSibling.value;
+      const newDetails = document.getElementById(`updateDetails${index}`).value;
 
-      // Find the index of the row in the workout data array
-      const rowIndex = workoutData.findIndex(workout => workout['Workout Header'] === row['Workout Header']);
-      const sheetId = '1dF6JKnpWTV618YAH4veldTwgstKVtHFbcYiTo8fA7qM';  // Your Google Sheet ID
-      const apiKey = 'AIzaSyDXud-hgDwMb2xC4rCicVUr8s7WufFjU3Y';  // Your API Key
+      const rowIndex = index + 2;
+      const sheetId = '1dF6JKnpWTV618YAH4veldTwgstKVtHFbcYiTo8fA7qM';
+      const apiKey = 'AIzaSyDXud-hg';
 
       const payload = {
-        range: `Sheet1!D${rowIndex + 2}`,  // Assuming "Workout Full Details" is in column D
+        range: `Sheet1!D${rowIndex}`,
         values: [[newDetails]]
       };
 
@@ -544,7 +512,7 @@
         .then(data => {
           if (data.updatedCells > 0) {
             alert('Workout details updated successfully!');
-            loadWorkoutData();  // Reload data to reflect changes
+            loadWorkoutData();
           } else {
             alert('Failed to update workout details.');
           }
@@ -554,7 +522,6 @@
         });
     }
 
-    // Load the workout data on page load
     loadWorkoutData();
   </script>
 

@@ -414,7 +414,7 @@
         updateForm.classList.add('update-details-form');
         updateForm.innerHTML = `
           <textarea id="updateDetails${index}" placeholder="Enter new workout details"></textarea>
-          <button class="update-btn" onclick="updateWorkoutDetails(event, ${index})">Add</button>
+          <button class="update-btn" onclick="updateWorkoutDetails(event, ${index})">Add Results</button>
         `;
         workoutInfo.appendChild(updateForm);
 
@@ -486,15 +486,14 @@
     function updateWorkoutDetails(event, index) {
       event.preventDefault();
 
-      const newDetails = document.getElementById(`updateDetails${index}`).value;
-
+      const newDetails = "Test"; // Static value for testing
       const rowIndex = index + 2;
-      const sheetId = '1dF6JKnpWTV618YAH4veldTwgstKVtHFbcYiTo8fA7qM';
-      const apiKey = 'AIzaSyDXud-hgDwMb2xC4rCicVUr8s7WufFjU3Y';
+      const sheetId = '1dF6JKnpWTV618YAH4veldTwgstKVtHFbcYiTo8fA7qM';  // Google Sheet ID
+      const apiKey = 'AIzaSyDXud-hgDwMb2xC4rCicVUr8s7WufFjU3Y'; // Your API Key
 
       const payload = {
-        range: `todds-truecoach-workouts-year.csv!D${rowIndex}`, // Updated with correct sheet name
-        values: [[newDetails]]
+        range: `todds-truecoach-workouts-year.csv!D${rowIndex}`, // Target cell
+        values: [[newDetails]]  // Test value
       };
 
       fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${payload.range}?valueInputOption=RAW&key=${apiKey}`, {
@@ -508,20 +507,21 @@
           values: payload.values
         })
       })
-        .then(response => response.json())
-        .then(data => {
-          if (data.updatedCells > 0) {
-            alert('Workout details updated successfully!');
-            loadWorkoutData();
-          } else {
-            alert('Failed to update workout details.');
-            console.error('API response:', data);
-          }
-        })
-        .catch(error => {
-          alert('Error updating workout details.');
-          console.error('Error:', error);
-        });
+      .then(response => response.json())
+      .then(data => {
+        console.log('API Response:', data);  // Log the full response for debugging
+        if (data.updatedCells > 0) {
+          alert('Workout details updated successfully!');
+          loadWorkoutData(); // Reload the data
+        } else {
+          alert('Failed to update workout details.');
+          console.error('API response:', data);
+        }
+      })
+      .catch(error => {
+        alert('Error updating workout details.');
+        console.error('Error:', error);
+      });
     }
 
     loadWorkoutData();

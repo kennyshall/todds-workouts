@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workout Data Display</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: rgb(0,86,149);
+      color: #d3d3d3;
+      margin: 0;
+      padding: 0;
+    }
+    .main-title-container {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0 10px;
+      flex-wrap: wrap;
+      background-color: rgb(0,86,149);
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+    .search-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin: 20px auto;
+      max-width: 800px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background-color: rgb(0,86,149);
+      padding: 10px;
+    }
+    .main-title {
+      font-size: 36px;
+      font-weight: bold;
+      margin-left: 15px;
+      color: #d3d3d3;
+    }
+    .workout-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .workout-card {
+      background-color: #d3d3d3;
+      border: 1px solid #5995C4;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .workout-info h2 {
+      margin: 0;
+      font-size: 20px;
+      color: #003c6d;
+    }
+    .update-details-form textarea {
+      width: 100%;
+      height: 80px;
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #003c6d;
+      border-radius: 5px;
+    }
+    .update-btn {
+      background-color: #003c6d;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+</head>
+<body>
+
+  <h1>Workout Logs</h1>
+
+  <!-- Workout container -->
+  <div class="workout-container" id="workoutContainer">
+    <!-- Dynamic workout cards will be inserted here -->
+  </div>
+
+  <script>
+    // Reference to the workout container
+    const workoutContainer = document.getElementById('workoutContainer');
+    let workoutData = [];
+
+    // Google Sheets CSV URL
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTl2VdbYSUhw2XHpmciqbOgvKt-MjqjdCEoVvy0coNODObnn18qxNMHOszL0EyOEqqV1OJYNAZm2wT/pub?output=csv';
+
+    // Load Google Sheets data
+    function loadWorkoutData() {
+      fetch(csvUrl)
+        .then(response => response.text())
+        .then(csvData => {
+          Papa.parse(csvData, {
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+              workoutData = results.data;
+              populateWorkoutCards(workoutData);
+            },
+            error: function(error) {
+              console.error('Error parsing CSV:', error);
+            }
+          });
+        })
+        .catch(error => console.error('Error fetching the CSV:', error));
+    }
+
+    // Populate workout cards
+    function populateWorkoutCards(data) {
+      workoutContainer.innerHTML = '';  // Clear existing cards
+
+      data.forEach(row => {
+        const card = document.createElement('div');
+        card.classList.add('workout-card');
+
+        const workoutInfo = document.createElement('div');
+        workoutInfo.classList.add('workout-info');
+
+        const header = document.createElement('h2');
+        header.textContent = row['Workout Header'];
+        workoutInfo.appendChild(header);
+
+        const details = document.createElement('div');
+        details.classList.add('details');
+        details.textContent = row['Workout Full Details'];
+        workoutInfo.appendChild(details);
+
+        // Create the update details form
+        const updateForm = document.createElement('div');
+        updateForm.classList.add('update-details-form');
+        updateForm.innerHTML = `
+          <textarea id="updateDetails" placeholder="Enter new workout details"></textarea>
+          <button class="update-btn" onclick="updateWorkoutDetails(event, row)">Update</button>
+        `;
+        workoutInfo.appendChild(updateForm);
+
+        card.appendChild(workoutInfo);
+        workoutContainer.appendChild(card);
+      });
+    }
+
+    // Function to update workout details
+    function updateWorkoutDetails(event, row) {
+      event.preventDefault();
+
+      // Get the new workout details
+      const newDetails = event.target.previousElementSibling.value;
+
+      // Get the index of the row in the Google Sheets
+      const rowIndex = workoutData.findIndex(workout => workout['Workout Header'] === row['Workout Header']);
+      const sheetId = '1dF6JKnpWTV618YAH4veldTwgstKVtHFbcYiTo8fA7qM';  // Your Google Sheet ID
+      const apiKey = 'AIzaSyDXud-hg';  // Your API Key
+
+      const payload = {
+        range: `Sheet1!D${rowIndex + 2}`,  // Assuming Workout Full Details is in column D
+        values: [[newDetails]]
+      };
+
+      // Update Google Sheet using Google Sheets API
+      fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${payload.range}?valueInputOption=RAW&key=${apiKey}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          range: payload.range,
+          majorDimension: 'ROWS',
+          values: payload.values
+        })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.updatedCells > 0) {
+            alert('Workout details updated successfully!');
+            loadWorkoutData();  // Reload data to reflect changes
+          } else {
+            alert('Failed to update workout details.');
+          }
+        })
+        .catch(error => {
+          console.error('Error updating workout details:', error);
+        });
+    }
+
+    // Load the workout data on page load
+    loadWorkoutData();
+  </script>
+
+</body>
+</html>
